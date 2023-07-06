@@ -6,6 +6,9 @@ import AuthenticationPage, {
 } from "./pages/Authentication";
 import ErrorPage from "./pages/Error";
 import OtpPage, { action as OtpAction } from "./pages/Otp";
+import SubscriptionPage, {
+  loader as subscriptionLoader,
+} from "./pages/Subscription";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +26,11 @@ const router = createBrowserRouter([
         path: "otp",
         element: <OtpPage />,
         action: OtpAction,
+      },
+      {
+        path: "subscribe",
+        element: <SubscriptionPage />,
+        loader: subscriptionLoader,
       },
     ],
   },

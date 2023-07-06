@@ -1,15 +1,8 @@
-import {
-  Form,
-  useSearchParams,
-  useActionData,
-  useNavigation,
-} from "react-router-dom";
+import { Form, useActionData, useNavigation } from "react-router-dom";
 
 import classes from "./AuthForm.module.css";
 
 function OtpForm() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const email = searchParams.get("email");
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
   const data = useActionData();

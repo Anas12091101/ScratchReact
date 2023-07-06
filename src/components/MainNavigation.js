@@ -27,6 +27,16 @@ function MainNavigation() {
               Login/Register
             </NavLink>
           </li>
+          <li>
+            <NavLink
+              to="subscribe"
+              className={({ isActive }) =>
+                isActive ? classes.active : undefined
+              }
+            >
+              Subscribe
+            </NavLink>
+          </li>
         </ul>
       </nav>
     </header>
