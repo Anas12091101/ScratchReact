@@ -9,12 +9,16 @@ import OtpPage, { action as OtpAction } from "./pages/Otp";
 import SubscriptionPage, {
   loader as subscriptionLoader,
 } from "./pages/Subscription";
+import { action as LogoutAction } from "./pages/Logout";
+import { tokenLoader } from "./utils/auth";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
     errorElement: <ErrorPage />,
+    id: "root",
+    loader: tokenLoader,
     children: [
       { index: true, element: <HomePage /> },
       {
@@ -31,6 +35,10 @@ const router = createBrowserRouter([
         path: "subscribe",
         element: <SubscriptionPage />,
         loader: subscriptionLoader,
+      },
+      {
+        path: "logout",
+        action: LogoutAction,
       },
     ],
   },

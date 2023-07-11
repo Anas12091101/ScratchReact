@@ -4,6 +4,7 @@ import {
   useSearchParams,
   useActionData,
   useNavigation,
+  useSubmit,
 } from "react-router-dom";
 
 import classes from "./AuthForm.module.css";
@@ -14,9 +15,15 @@ function AuthForm() {
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
   const data = useActionData();
+  const submit = useSubmit();
+  function submitHandler(event) {
+    // const email = event.target.email.value;
+    const password = event.target.password.value;
+    localStorage.setItem("password", password);
+  }
   return (
     <>
-      <Form method="post" className={classes.form}>
+      <Form method="post" className={classes.form} onSubmit={submitHandler}>
         <h1>{isLogin ? "Log in" : "Create a new user"}</h1>
         {data && data.errors && (
           <ul>
