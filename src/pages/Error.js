@@ -5,8 +5,8 @@ function ErrorPage() {
   const error = useRouteError();
 
   let title = "An error occurred!";
-  let message = error.data.status;
-
+  let message = error.data ? error.data.status : "";
+  console.log(error);
   return (
     <>
       <MainNavigation />

@@ -11,42 +11,37 @@ import { Typography } from "@mui/material";
 import { PayPalButtons } from "@paypal/react-paypal-js";
 import toast from "react-hot-toast";
 import { getAuthToken } from "../utils/auth";
-function SubCard({ cardInfo, features }) {
+import { useState } from "react";
+import { capturePayment, createPayment } from "../utils/payment";
+
+function SubCard({ cardInfo, features, active, changeActive }) {
   const period_lookup = {
     y: "year",
     m: "month",
   };
-  const token = getAuthToken();
-  function approveHandler() {
-    let url = "http://127.0.0.1:8000/subscription/subscribe/";
-    let headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + token,
-    };
-    let response = fetch(url, {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify({ id: cardInfo.id }),
-    });
-    console.log(response.ok);
-    if (response.ok) {
-      toast.success(
-        "Congrats! You have subscribed. Thankyou",
 
-        {
-          duration: 5000,
-        }
-      );
-    } else {
-      toast.error("Something bad happened. Couldn't complete your request");
-    }
-  }
+  const importance = {
+    pre: 3,
+    standard: 2,
+    free: 1,
+    m: 1,
+    y: 2,
+  };
+
+  const isImportant =
+    importance[active.membership_type] < importance[cardInfo.membership_type] ||
+    (importance[active.membership_type] ===
+      importance[cardInfo.membership_type] &&
+      importance[active.period] < importance[cardInfo.period]);
+
+  const isActive = cardInfo.id === active.id;
+  const token = getAuthToken();
+
   return (
     <Box
       sx={{
         flex: "0 0 33",
-        minWidth: "30%",
-        // width: "30%",
+        minWidth: "23em",
         margin: 2,
       }}
     >
@@ -54,8 +49,10 @@ function SubCard({ cardInfo, features }) {
         size="lg"
         variant="outlined"
         sx={{
-          backgroundColor: "darkgrey",
+          backgroundColor: isActive ? "lightgrey" : "darkgrey",
+          border: isActive ? "5px solid #c5973b" : "None",
           ":hover": { backgroundColor: "lightgrey" },
+          minHeight: "21em",
         }}
       >
         <Typography level="h2" fontSize="xl3">
@@ -86,34 +83,38 @@ function SubCard({ cardInfo, features }) {
           <Typography level="h5" sx={{ mr: "auto" }}></Typography>
           {parseFloat(cardInfo.price).toFixed(2)}${" "}
           <Typography>/ {period_lookup[cardInfo.period]}</Typography>
-          {cardInfo.membership_type !== "free" && (
+          {cardInfo.membership_type !== "free" && !isActive && isImportant && (
             <PayPalButtons
-              style={{ layout: "horizontal" }}
-              createOrder={(data, actions) => {
-                return actions.order.create({
-                  purchase_units: [
-                    {
-                      amount: {
-                        value: parseFloat(cardInfo.price).toFixed(2),
-                      },
-                    },
-                  ],
-                });
+              style={{
+                layout: "horizontal",
+                color: "black",
+                tagline: true,
               }}
+              createOrder={async () => createPayment(token, cardInfo)}
               onCancel={() =>
                 toast.error("You cancelled the payment", {
-                  duration: 5000,
+                  duration: 10000,
                 })
               }
-              onApprove={(data, actions) => {
-                return actions.order.capture().then((details) => {
-                  approveHandler();
-                });
-              }}
+              onApprove={async (data) =>
+                capturePayment(data, token, cardInfo, changeActive)
+              }
               onError={() =>
                 toast.error("An error occured", { duration: 5000 })
               }
             />
+          )}
+          {isActive && (
+            <Typography
+              sx={{
+                color: "darkslategray",
+                backgroundColor: "aliceblue",
+                padding: 0.5,
+                borderRadius: "10%",
+              }}
+            >
+              Subscribed
+            </Typography>
           )}
         </CardActions>
       </Card>

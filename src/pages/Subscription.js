@@ -13,12 +13,23 @@ export async function loader() {
   if (!token) {
     return redirect("/auth?mode=login");
   }
-  let url = "http://127.0.0.1:8000/subscription/get_memberships/";
-  const response = await fetch(url);
+  let membership_url = "http://127.0.0.1:8000/subscription/get_memberships/";
+  const response = await fetch(membership_url);
   if (!response.ok) {
-  } else {
-    const resData = await response.json();
-    console.log(resData);
-    return resData;
+    return response;
   }
+  let user_membership_url =
+    "http://127.0.0.1:8000/subscription/user_membership/";
+  const user_response = await fetch(user_membership_url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token,
+    },
+  });
+  let data = {};
+  data["user_subscription"] = await user_response.json();
+  data["memberships"] = await response.json();
+  console.log(data);
+  return data;
 }

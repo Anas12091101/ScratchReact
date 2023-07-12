@@ -2,37 +2,99 @@ import {
   Form,
   Link,
   useSearchParams,
-  useActionData,
   useNavigation,
-  useSubmit,
+  useNavigate,
 } from "react-router-dom";
-
+import toast, { Toaster } from "react-hot-toast";
 import classes from "./AuthForm.module.css";
+import { useState } from "react";
+import { setJWTToken } from "../utils/auth";
 
 function AuthForm() {
+  // eslint-disable-next-line
   const [searchParams, setSearchParams] = useSearchParams();
   const isLogin = searchParams.get("mode") === "login";
+  const [otp, setOtp] = useState(false);
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
-  const data = useActionData();
-  const submit = useSubmit();
-  function submitHandler(event) {
-    // const email = event.target.email.value;
-    const password = event.target.password.value;
-    localStorage.setItem("password", password);
+
+  const navigate = useNavigate();
+
+  async function submitHandler(event) {
+    event.preventDefault();
+    if (!otp) {
+      const data = new FormData(event.target);
+      var object = {};
+      data.forEach((value, key) => (object[key] = value));
+      var body = JSON.stringify(object);
+
+      let url = "http://127.0.0.1:8000/user/";
+
+      if (isLogin) {
+        url += "login/";
+      } else {
+        url += "register_user/";
+      }
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: body,
+      });
+
+      const resData = await response.json();
+
+      if (!response.ok) {
+        toast.error(resData.status, { duration: 5000 });
+        return;
+      }
+
+      console.log(resData);
+      if (isLogin) {
+        if (resData.status === "GA" || resData.status === "Email") {
+          setOtp(true);
+        } else {
+          let jwt_token = resData.status;
+          console.log(jwt_token);
+          setJWTToken(jwt_token);
+          return navigate("/");
+        }
+      } else {
+        return navigate("/auth?mode=login");
+      }
+    } else {
+      const data = new FormData(event.target);
+      object = {};
+      data.forEach((value, key) => (object[key] = value));
+
+      let body = JSON.stringify(object);
+
+      console.log(body);
+      let url = "http://127.0.0.1:8000/user/check_otp/";
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: body,
+      });
+      const resData = await response.json();
+      if (response.ok) {
+        let jwt_token = resData["status"]["access"];
+        setJWTToken(jwt_token);
+        return navigate("/");
+      } else {
+        toast.error(resData.status, { duration: 5000 });
+        return;
+      }
+    }
   }
   return (
     <>
+      <Toaster />
       <Form method="post" className={classes.form} onSubmit={submitHandler}>
         <h1>{isLogin ? "Log in" : "Create a new user"}</h1>
-        {data && data.errors && (
-          <ul>
-            {Object.values(data.errors).map((err) => (
-              <li key={err}>{err}</li>
-            ))}
-          </ul>
-        )}
-        {data && data.status && <p>{data.status}</p>}
         {!isLogin && (
           <p>
             <label htmlFor="name">Name</label>
@@ -40,13 +102,29 @@ function AuthForm() {
           </p>
         )}
         <p>
-          <label htmlFor="email">Email</label>
-          <input id="email" type="email" name="email" required />
+          {!otp && <label htmlFor="email">Email</label>}
+          <input
+            id="email"
+            type={otp ? "hidden" : "email"}
+            name="email"
+            required
+          />
         </p>
         <p>
-          <label htmlFor="image">Password</label>
-          <input id="password" type="password" name="password" required />
+          {!otp && <label htmlFor="password">Password</label>}
+          <input
+            id="password"
+            type={otp ? "hidden" : "password"}
+            name="password"
+            required
+          />
         </p>
+        {otp && (
+          <p>
+            <label htmlFor="otp">Otp</label>
+            <input id="otp" type="otp" name="otp" required />
+          </p>
+        )}
         {!isLogin && (
           <p>
             <label htmlFor="OTP">OTP</label>
