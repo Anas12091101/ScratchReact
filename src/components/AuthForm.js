@@ -9,6 +9,8 @@ import {
 
 import classes from "./AuthForm.module.css";
 import { useState } from "react";
+import { fetch_url } from "../services";
+import { toast } from "react-toastify";
 
 function AuthForm() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -27,33 +29,22 @@ function AuthForm() {
       data.forEach((value, key) => (object[key] = value));
       var body = JSON.stringify(object);
 
-      let url = "http://127.0.0.1:8000/user/";
+      let url = process.env.REACT_APP_BACKEND_URL;
+      url += isLogin ? "user/login/" : "user/register_user/";
 
-      if (isLogin) {
-        url += "login/";
-      } else {
-        url += "register_user/";
-      }
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: body,
-      });
+      const [ok, output] = await fetch_url(url, body, "POST");
 
-      if (!response.ok) {
-        return response;
+      if (!ok) {
+        return toast.error("Something bad happened");
       }
 
-      const resData = await response.json();
-      console.log(resData);
       if (isLogin) {
-        if (resData.status === "GA" || resData.status === "Email") {
+        if (output.status === "GA" || output.status === "Email") {
           setOtp(true);
         } else {
-          let jwt_token = resData.status;
-          console.log(jwt_token);
+          let jwt_token = output.status.access;
+          localStorage.setItem("token", jwt_token);
+          toast.success("Successfully Logged In");
           return navigate("/");
         }
       } else {
@@ -65,23 +56,17 @@ function AuthForm() {
       data.forEach((value, key) => (object[key] = value));
 
       let body = JSON.stringify(object);
+      let url = `${process.env.REACT_APP_BACKEND_URL}/user/check_otp/`;
 
-      console.log(body);
-      let url = "http://127.0.0.1:8000/user/check_otp/";
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: body,
-      });
-      if (response.ok) {
-        const data = await response.json();
-        let jwt_token = data["status"]["access"];
+      let [ok, output] = await fetch_url(url, body, "POST");
+
+      if (ok) {
+        let jwt_token = output.status.access;
         localStorage.setItem("token", jwt_token);
+        toast.success("Successfully Logged In");
         return navigate("/");
       } else {
-        return response;
+        return toast.error("Something bad happened");
       }
     }
   }
