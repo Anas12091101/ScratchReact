@@ -16,3 +16,10 @@ export async function fetch_url(url, body, method, login_required = false) {
     return [false, err];
   }
 }
+
+export function convertFormDataToJSONString(formData) {
+  var object = {};
+  formData.forEach((value, key) => (object[key] = value));
+  var body = JSON.stringify(object);
+  return body;
+}

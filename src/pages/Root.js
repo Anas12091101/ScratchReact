@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import MainNavigation from "../components/MainNavigation";
 
@@ -16,7 +16,7 @@ function RootLayout() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="colored"
+        theme="dark"
       />
       <MainNavigation />
       <main>
