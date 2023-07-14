@@ -1,0 +1,22 @@
+.header{
+    display: flex;
+    max-width: 60rem;
+    margin: auto;
+    padding: 2rem;
+    justify-content:  center;
+}
+
+.list{
+    display: flex;
+    gap: 3rem;
+}
+
+.list a{
+    text-decoration: none;
+    color: #98690d;
+}
+
+.list a:hover, .list a.active{
+    color: #c5973b;
+
+}
