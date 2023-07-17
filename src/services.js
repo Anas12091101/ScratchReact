@@ -10,9 +10,12 @@ export async function fetch_url(url, body, method, login_required = false) {
       body: body,
     });
     const data = await response.json();
+    if (!response.ok) {
+      throw data.message ? data.message : "An error occured";
+    }
     return [response.ok, data];
   } catch (err) {
-    console.log(err);
+    toast.error(err);
     return [false, err];
   }
 }

@@ -23,50 +23,44 @@ function AuthForm() {
 
   async function submitHandler(event) {
     event.preventDefault();
-    if (!otp) {
-      const data = new FormData(event.target);
-      var object = {};
-      data.forEach((value, key) => (object[key] = value));
-      var body = JSON.stringify(object);
 
+    const data = new FormData(event.target);
+    var object = {};
+    data.forEach((value, key) => (object[key] = value));
+    var body = JSON.stringify(object);
+
+    if (!otp) {
       let url = process.env.REACT_APP_BACKEND_URL;
       url += isLogin ? "user/login/" : "user/register_user/";
 
-      const [ok, output] = await fetch_url(url, body, "POST");
-
-      if (!ok) {
-        return toast.error("Something bad happened");
-      }
-
-      if (isLogin) {
-        if (output.status === "GA" || output.status === "Email") {
-          setOtp(true);
+      const [responseOk, responseOutput] = await fetch_url(url, body, "POST");
+      if (responseOk) {
+        if (isLogin) {
+          if (
+            responseOutput.status === "GA" ||
+            responseOutput.status === "Email"
+          ) {
+            setOtp(true);
+          } else {
+            let jwt_token = responseOutput.status.access;
+            localStorage.setItem("token", jwt_token);
+            toast.success("Successfully Logged In");
+            return navigate("/");
+          }
         } else {
-          let jwt_token = output.status.access;
-          localStorage.setItem("token", jwt_token);
-          toast.success("Successfully Logged In");
-          return navigate("/");
+          return navigate("/auth?mode=login");
         }
-      } else {
-        return navigate("/auth?mode=login");
       }
     } else {
-      const data = new FormData(event.target);
-      object = {};
-      data.forEach((value, key) => (object[key] = value));
+      let url = `${process.env.REACT_APP_BACKEND_URL}/otp/check/`;
 
-      let body = JSON.stringify(object);
-      let url = `${process.env.REACT_APP_BACKEND_URL}/user/check_otp/`;
+      let [responseOk, responseOutput] = await fetch_url(url, body, "POST");
 
-      let [ok, output] = await fetch_url(url, body, "POST");
-
-      if (ok) {
-        let jwt_token = output.status.access;
+      if (responseOk) {
+        let jwt_token = responseOutput.status.access;
         localStorage.setItem("token", jwt_token);
         toast.success("Successfully Logged In");
         return navigate("/");
-      } else {
-        return toast.error("Something bad happened");
       }
     }
   }
