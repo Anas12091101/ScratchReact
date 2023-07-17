@@ -1,10 +1,4 @@
-import {
-  Form,
-  Link,
-  useSearchParams,
-  useNavigation,
-  useNavigate,
-} from "react-router-dom";
+import { Form, Link, useSearchParams, useNavigate } from "react-router-dom";
 
 import classes from "./Form.module.css";
 import { useState } from "react";
@@ -16,24 +10,31 @@ function AuthForm() {
   const [searchParams, setSearchParams] = useSearchParams();
   const isLogin = searchParams.get("mode") === "login";
   const [otp, setOtp] = useState(false);
-  const navigation = useNavigation();
-  const isSubmitting = navigation.state === "submitting";
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
   async function submitHandler(event) {
     event.preventDefault();
+    setSubmitting(true);
     if (!otp) {
       const data = new FormData(event.target);
       let body = convertFormDataToJSONString(data);
-      let url = process.env.REACT_APP_BACKEND_URL;
-      url += isLogin ? "user/login/" : "user/register_user/";
-      const [ok, output] = await fetch_url(url, body, "POST");
+      let base_url = process.env.REACT_APP_BACKEND_URL;
+      let auth_url =
+        base_url + (isLogin ? "user/login/" : "user/register_user/");
+      console.log(base_url, auth_url);
+      const [ok, output] = await fetch_url(auth_url, body, "POST");
       if (!ok) {
-        return toast.error("Something bad happened");
+        setSubmitting(false);
+        return toast.error(
+          output.message ? output.message : "Something bad happened"
+        );
       }
+      console.log(output);
       if (isLogin) {
-        if (output.type === "GA" || output.type === "Email") {
+        if (output.type === "GA" || output.type === "email") {
           setOtp(true);
+          setSubmitting(false);
         } else {
           let jwt_token = output.token.access;
           localStorage.setItem("token", jwt_token);
@@ -41,12 +42,22 @@ function AuthForm() {
           return navigate("/");
         }
       } else {
+        let otp_url = base_url + "otp/create/";
+        const [ok, output] = await fetch_url(otp_url, body, "POST");
+        if (!ok) {
+          setSubmitting(false);
+          return toast.error(
+            output.message ? output.message : "Something bad happened"
+          );
+        }
+        toast.success("Successfully Registered User");
+        setSubmitting(false);
         return navigate("/auth?mode=login");
       }
     } else {
       const data = new FormData(event.target);
       let body = convertFormDataToJSONString(data);
-      let url = `${process.env.REACT_APP_BACKEND_URL}/user/check_otp/`;
+      let url = `${process.env.REACT_APP_BACKEND_URL}otp/check/`;
 
       let [ok, output] = await fetch_url(url, body, "POST");
 
@@ -56,7 +67,10 @@ function AuthForm() {
         toast.success("Successfully Logged In");
         return navigate("/");
       } else {
-        return toast.error("Something bad happened");
+        setSubmitting(false);
+        return toast.error(
+          output.message ? output.message : "Something bad happened"
+        );
       }
     }
   }
@@ -101,7 +115,7 @@ function AuthForm() {
             <Link to={`?mode=${isLogin ? "signup" : "login"}`}>
               {isLogin ? "Create account" : "Sign in"}
             </Link>
-            <button>{isSubmitting ? "submitting..." : "Submit"}</button>
+            <button>{submitting ? "submitting..." : "Submit"}</button>
           </div>
         </div>
       </Form>
