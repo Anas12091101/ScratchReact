@@ -1,63 +1,56 @@
-import {
-  Form,
-  Link,
-  useSearchParams,
-  useActionData,
-  useNavigation,
-  useNavigate,
-} from "react-router-dom";
+import { Form, Link, useSearchParams, useNavigate } from "react-router-dom";
 
 import classes from "./AuthForm.module.css";
 import { useState } from "react";
-import { fetch_url } from "../services";
+import { fetchUrl, getBody } from "../services";
 import { toast } from "react-toastify";
 
 function AuthForm() {
   const [searchParams, setSearchParams] = useSearchParams();
   const isLogin = searchParams.get("mode") === "login";
   const [otp, setOtp] = useState(false);
-  const navigation = useNavigation();
-  const isSubmitting = navigation.state === "submitting";
-  const data = useActionData();
+  const [submitting, setSubmitiing] = useState(false);
   const navigate = useNavigate();
 
   async function submitHandler(event) {
     event.preventDefault();
 
-    const data = new FormData(event.target);
-    var object = {};
-    data.forEach((value, key) => (object[key] = value));
-    var body = JSON.stringify(object);
+    setSubmitiing(true);
+
+    let body = getBody(event.target);
 
     if (!otp) {
       let url = process.env.REACT_APP_BACKEND_URL;
       url += isLogin ? "user/login/" : "user/register_user/";
 
-      const [responseOk, responseOutput] = await fetch_url(url, body, "POST");
+      const [responseOk, responseOutput] = await fetchUrl(url, body, "POST");
       if (responseOk) {
         if (isLogin) {
           if (
-            responseOutput.status === "GA" ||
-            responseOutput.status === "Email"
+            responseOutput.message === "GA" ||
+            responseOutput.message === "Email"
           ) {
             setOtp(true);
+            setSubmitiing(false);
           } else {
-            let jwt_token = responseOutput.status.access;
+            let jwt_token = responseOutput.token.access;
             localStorage.setItem("token", jwt_token);
             toast.success("Successfully Logged In");
             return navigate("/");
           }
         } else {
+          setSubmitiing(false);
+          toast.success("Successfully Logged In");
           return navigate("/auth?mode=login");
         }
       }
     } else {
       let url = `${process.env.REACT_APP_BACKEND_URL}/otp/check/`;
 
-      let [responseOk, responseOutput] = await fetch_url(url, body, "POST");
+      let [responseOk, responseOutput] = await fetchUrl(url, body, "POST");
 
       if (responseOk) {
-        let jwt_token = responseOutput.status.access;
+        let jwt_token = responseOutput.token.access;
         localStorage.setItem("token", jwt_token);
         toast.success("Successfully Logged In");
         return navigate("/");
@@ -69,14 +62,6 @@ function AuthForm() {
     <>
       <Form method="post" className={classes.form} onSubmit={submitHandler}>
         <h1>{isLogin ? "Log in" : "Create a new user"}</h1>
-        {data && data.errors && (
-          <ul>
-            {Object.values(data.errors).map((err) => (
-              <li key={err}>{err}</li>
-            ))}
-          </ul>
-        )}
-        {data && data.status && <p>{data.status}</p>}
         {!isLogin && (
           <p>
             <label htmlFor="name">Name</label>
@@ -111,7 +96,7 @@ function AuthForm() {
           <Link to={`?mode=${isLogin ? "signup" : "login"}`}>
             {isLogin ? "Create account" : "Sign in"}
           </Link>
-          <button>{isSubmitting ? "submitting..." : "Submit"}</button>
+          <button>{submitting ? "submitting..." : "Submit"}</button>
         </div>
       </Form>
     </>

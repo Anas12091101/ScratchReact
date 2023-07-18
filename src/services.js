@@ -1,4 +1,6 @@
-export async function fetch_url(url, body, method, login_required = false) {
+import { toast } from "react-toastify";
+
+export async function fetchUrl(url, body, method, login_required = false) {
   let headers = { "Content-Type": "application/json" };
   if (login_required) {
     headers["Authorization"] = "Bearer " + localStorage.getItem("token");
@@ -18,4 +20,12 @@ export async function fetch_url(url, body, method, login_required = false) {
     toast.error(err);
     return [false, err];
   }
+}
+
+export function getBody(formData) {
+  const data = new FormData(formData);
+  var object = {};
+  data.forEach((value, key) => (object[key] = value));
+  var body = JSON.stringify(object);
+  return body;
 }
