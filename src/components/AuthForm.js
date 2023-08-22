@@ -16,62 +16,59 @@ function AuthForm() {
   async function submitHandler(event) {
     event.preventDefault();
     setSubmitting(true);
+
+    const data = new FormData(event.target);
+    let body = convertFormDataToJSONString(data);
+    let baseUrl = process.env.REACT_APP_BACKEND_URL;
+
     if (!otp) {
-      const data = new FormData(event.target);
-      let body = convertFormDataToJSONString(data);
-      let base_url = process.env.REACT_APP_BACKEND_URL;
-      let auth_url =
-        base_url + (isLogin ? "user/login/" : "user/register_user/");
-      console.log(base_url, auth_url);
-      const [ok, output] = await fetch_url(auth_url, body, "POST");
-      if (!ok) {
-        setSubmitting(false);
+      let authUrl = baseUrl + (isLogin ? "user/login/" : "user/register_user/");
+      const [ok, output] = await fetch_url(authUrl, body, "POST");
+      setSubmitting(false);
+
+      if (ok) {
+        if (isLogin) {
+          if (output.type === "GA" || output.type === "email") {
+            setOtp(true);
+          } else {
+            let jwt_token = output.token.access;
+            localStorage.setItem("token", jwt_token);
+            toast.success("Successfully Logged In");
+            return navigate("/");
+          }
+        } else {
+          let otpUrl = baseUrl + "otp/create/";
+          const [ok, output] = await fetch_url(otpUrl, body, "POST");
+          if (ok) {
+            toast.success("Successfully Registered User");
+            setSubmitting(false);
+            return navigate("/auth?mode=login");
+          } else {
+            return toast.error(
+              output.message ? output.message : "Something bad happened"
+            );
+          }
+        }
+      } else {
         return toast.error(
           output.message ? output.message : "Something bad happened"
         );
       }
-      console.log(output);
-      if (isLogin) {
-        if (output.type === "GA" || output.type === "email") {
-          setOtp(true);
-          setSubmitting(false);
-        } else {
-          let jwt_token = output.token.access;
-          localStorage.setItem("token", jwt_token);
-          toast.success("Successfully Logged In");
-          return navigate("/");
-        }
-      } else {
-        let otp_url = base_url + "otp/create/";
-        const [ok, output] = await fetch_url(otp_url, body, "POST");
-        if (!ok) {
-          setSubmitting(false);
-          return toast.error(
-            output.message ? output.message : "Something bad happened"
-          );
-        }
-        toast.success("Successfully Registered User");
-        setSubmitting(false);
-        return navigate("/auth?mode=login");
-      }
     } else {
-      const data = new FormData(event.target);
-      let body = convertFormDataToJSONString(data);
-      let url = `${process.env.REACT_APP_BACKEND_URL}otp/check/`;
+      let url = `${baseUrl}otp/check/`;
 
       let [ok, output] = await fetch_url(url, body, "POST");
+      setSubmitting(false);
 
       if (ok) {
         let jwt_token = output.token.access;
         localStorage.setItem("token", jwt_token);
         toast.success("Successfully Logged In");
         return navigate("/");
-      } else {
-        setSubmitting(false);
-        return toast.error(
-          output.message ? output.message : "Something bad happened"
-        );
       }
+      return toast.error(
+        output.message ? output.message : "Something bad happened"
+      );
     }
   }
 
