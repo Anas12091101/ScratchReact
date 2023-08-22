@@ -9,7 +9,7 @@ import Check from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import { Typography } from "@mui/material";
 import { PayPalButtons } from "@paypal/react-paypal-js";
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 import { getAuthToken } from "../utils/auth";
 import { useState } from "react";
 import { capturePayment, createPayment } from "../utils/payment";

@@ -30,6 +30,5 @@ export async function loader() {
   let data = {};
   data["user_subscription"] = await user_response.json();
   data["memberships"] = await response.json();
-  console.log(data);
   return data;
 }

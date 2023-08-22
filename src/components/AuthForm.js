@@ -5,7 +5,7 @@ import {
   useNavigation,
   useNavigate,
 } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import { toast } from "react-toastify";
 import classes from "./AuthForm.module.css";
 import { useState } from "react";
 import { setJWTToken } from "../utils/auth";
@@ -50,13 +50,11 @@ function AuthForm() {
         return;
       }
 
-      console.log(resData);
       if (isLogin) {
         if (resData.status === "GA" || resData.status === "Email") {
           setOtp(true);
         } else {
-          let jwt_token = resData.status;
-          console.log(jwt_token);
+          let jwt_token = resData.status.access;
           setJWTToken(jwt_token);
           return navigate("/");
         }
@@ -70,7 +68,6 @@ function AuthForm() {
 
       let body = JSON.stringify(object);
 
-      console.log(body);
       let url = "http://127.0.0.1:8000/user/check_otp/";
       const response = await fetch(url, {
         method: "POST",
@@ -92,7 +89,6 @@ function AuthForm() {
   }
   return (
     <>
-      <Toaster />
       <Form method="post" className={classes.form} onSubmit={submitHandler}>
         <h1>{isLogin ? "Log in" : "Create a new user"}</h1>
         {!isLogin && (

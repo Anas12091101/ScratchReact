@@ -1,4 +1,4 @@
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 
 export async function createPayment(token, cardInfo) {
   const response = await fetch(

@@ -4,6 +4,8 @@ import { useSubmit } from "react-router-dom";
 import { useLoaderData } from "react-router-dom";
 import { useEffect } from "react";
 import MainNavigation from "../components/MainNavigation";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function RootLayout() {
   const token = useLoaderData();
@@ -20,7 +22,6 @@ function RootLayout() {
     }
 
     const tokenDuration = getTokenDuration();
-    console.log(tokenDuration);
 
     setTimeout(() => {
       submit(null, { action: "/logout", method: "post" });
@@ -29,6 +30,18 @@ function RootLayout() {
 
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
       <MainNavigation />
       <main>
         <Outlet />
