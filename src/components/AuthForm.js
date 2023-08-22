@@ -24,6 +24,8 @@ function AuthForm() {
       url += isLogin ? "user/login/" : "user/register_user/";
 
       const [responseOk, responseOutput] = await fetchUrl(url, body, "POST");
+      setSubmitiing(false);
+
       if (responseOk) {
         if (isLogin) {
           if (
@@ -31,7 +33,6 @@ function AuthForm() {
             responseOutput.message === "Email"
           ) {
             setOtp(true);
-            setSubmitiing(false);
           } else {
             let jwt_token = responseOutput.token.access;
             localStorage.setItem("token", jwt_token);
@@ -39,8 +40,7 @@ function AuthForm() {
             return navigate("/");
           }
         } else {
-          setSubmitiing(false);
-          toast.success("Successfully Logged In");
+          toast.success("Successfully Registered");
           return navigate("/auth?mode=login");
         }
       }
