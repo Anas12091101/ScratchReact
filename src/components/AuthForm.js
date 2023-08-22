@@ -4,6 +4,7 @@ import classes from "./Form.module.css";
 import { useState } from "react";
 import { convertFormDataToJSONString, fetch_url } from "../services";
 import { toast } from "react-toastify";
+import { setJWTToken } from "../utils/auth";
 
 function AuthForm() {
   // eslint-disable-next-line
@@ -32,12 +33,12 @@ function AuthForm() {
             setOtp(true);
           } else {
             let jwt_token = output.token.access;
-            localStorage.setItem("token", jwt_token);
+            setJWTToken(jwt_token);
             toast.success("Successfully Logged In");
             return navigate("/");
           }
         } else {
-          let otpUrl = baseUrl + "otp/create/";
+          let otpUrl = baseUrl + "otp/create_otp/";
           const [ok, output] = await fetch_url(otpUrl, body, "POST");
           if (ok) {
             toast.success("Successfully Registered User");
@@ -55,14 +56,14 @@ function AuthForm() {
         );
       }
     } else {
-      let url = `${baseUrl}otp/check/`;
+      let url = `${baseUrl}otp/check_otp/`;
 
       let [ok, output] = await fetch_url(url, body, "POST");
       setSubmitting(false);
 
       if (ok) {
         let jwt_token = output.token.access;
-        localStorage.setItem("token", jwt_token);
+        setJWTToken(jwt_token);
         toast.success("Successfully Logged In");
         return navigate("/");
       }

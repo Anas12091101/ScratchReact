@@ -5,12 +5,15 @@ import AuthenticationPage from "./pages/Authentication";
 import ErrorPage from "./pages/Error";
 import ResetPage from "./pages/Reset";
 import { action as resetAction } from "./pages/Reset";
-
+import { action as LogoutAction } from "./pages/Logout";
+import { tokenLoader } from "./utils/auth";
 const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
     errorElement: <ErrorPage />,
+    id: "root",
+    loader: tokenLoader,
     children: [
       { index: true, element: <HomePage /> },
       {
@@ -21,6 +24,10 @@ const router = createBrowserRouter([
         path: "reset",
         element: <ResetPage />,
         action: resetAction,
+      },
+      {
+        path: "logout",
+        action: LogoutAction,
       },
     ],
   },
