@@ -1,4 +1,8 @@
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import {
+  RouterProvider,
+  createBrowserRouter,
+  // redirect,
+} from "react-router-dom";
 import HomePage from "./pages/Home";
 import RootLayout from "./pages/Root";
 import AuthenticationPage from "./pages/Authentication";
@@ -7,6 +11,7 @@ import ResetPage from "./pages/Reset";
 import { action as resetAction } from "./pages/Reset";
 import { action as LogoutAction } from "./pages/Logout";
 import { tokenLoader } from "./utils/auth";
+import { homeLoader } from "./pages/Home";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -15,7 +20,11 @@ const router = createBrowserRouter([
     id: "root",
     loader: tokenLoader,
     children: [
-      { index: true, element: <HomePage /> },
+      {
+        index: true,
+        element: <HomePage />,
+        loader: homeLoader,
+      },
       {
         path: "auth",
         element: <AuthenticationPage />,
