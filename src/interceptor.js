@@ -14,7 +14,7 @@ axiosInstance.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
       //   config.headers["Content-Type"] = "application/json";
     }
-    console.log(config.headers);
+
     return config;
   },
   (error) => {
@@ -25,14 +25,24 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.log(error);
-    toast.error(
-      error.response ? error.response.data.message : "Something bad happended"
-    );
+    // Reset password error handling
+    if (error.response.data?.password) {
+      error.response.data?.password.map((err) => toast.error(err));
+    }
+    // Backend API error handling
+    else {
+      toast.error(
+        error.response.data.message
+          ? error.response.data.message
+          : error.response.data.detail
+          ? error.response.data.detail
+          : "Something bad happended"
+      );
+    }
     if (error.response.status === 401) {
+      localStorage.clear();
       return redirect("/auth?mode=login");
     }
-
     return Promise.reject(error);
   }
 );

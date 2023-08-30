@@ -2,9 +2,10 @@ import { Form, Link, useSearchParams, useNavigate } from "react-router-dom";
 
 import classes from "./Form.module.css";
 import { useState } from "react";
-import { convertFormDataToJSONString, fetch_url } from "../services";
+import { convertFormDataToJSON } from "../services";
 import { toast } from "react-toastify";
 import { setJWTToken } from "../utils/auth";
+import axiosInstance from "../interceptor";
 
 function AuthForm() {
   // eslint-disable-next-line
@@ -19,57 +20,45 @@ function AuthForm() {
     setSubmitting(true);
 
     const data = new FormData(event.target);
-    let body = convertFormDataToJSONString(data);
-    let baseUrl = process.env.REACT_APP_BACKEND_URL;
+    let body = convertFormDataToJSON(data);
 
     if (!otp) {
-      let authUrl = baseUrl + (isLogin ? "user/login/" : "user/register_user/");
-      const [ok, output] = await fetch_url(authUrl, body, "POST");
-      setSubmitting(false);
+      let authUrl = isLogin ? "user/login/" : "user/register_user/";
+      // const [ok, output] = await fetch_url(authUrl, body, "POST");
+      try {
+        const { data } = await axiosInstance.post(authUrl, body);
 
-      if (ok) {
         if (isLogin) {
-          if (output.type === "GA" || output.type === "email") {
+          if (data.type === "GA" || data.type === "email") {
             setOtp(true);
           } else {
-            let jwt_token = output.token.access;
+            let jwt_token = data.token.access;
             setJWTToken(jwt_token);
             toast.success("Successfully Logged In");
             return navigate("/");
           }
         } else {
-          let otpUrl = baseUrl + "otp/create_otp/";
-          const [ok, output] = await fetch_url(otpUrl, body, "POST");
-          if (ok) {
+          let otpUrl = "otp/create_otp/";
+          try {
+            await axiosInstance.post(otpUrl, body);
             toast.success("Successfully Registered User");
             setSubmitting(false);
             return navigate("/auth?mode=login");
-          } else {
-            return toast.error(
-              output.message ? output.message : "Something bad happened"
-            );
-          }
+          } catch (error) {}
         }
-      } else {
-        return toast.error(
-          output.message ? output.message : "Something bad happened"
-        );
-      }
-    } else {
-      let url = `${baseUrl}otp/check_otp/`;
+      } catch (error) {}
 
-      let [ok, output] = await fetch_url(url, body, "POST");
       setSubmitting(false);
-
-      if (ok) {
-        let jwt_token = output.token.access;
+    } else {
+      let url = `otp/check_otp/`;
+      try {
+        let { data } = await axiosInstance.post(url, body);
+        setSubmitting(false);
+        let jwt_token = data.token.access;
         setJWTToken(jwt_token);
         toast.success("Successfully Logged In");
         return navigate("/");
-      }
-      return toast.error(
-        output.message ? output.message : "Something bad happened"
-      );
+      } catch (error) {}
     }
   }
 
