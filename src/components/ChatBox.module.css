@@ -1,0 +1,51 @@
+.msgChat {
+  display: block;
+  border: 2px solid #0c9b30;
+  padding: 20px;
+  margin: 30px;
+}
+
+.msgAction {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.msgInput {
+  width: 90%;
+  height: 3rem;
+  font-size: large;
+  padding: 4px;
+}
+
+.msgs {
+  height: 30rem;
+  overflow: scroll;
+}
+
+.btn {
+  width: 9%;
+}
+
+.msg {
+  display: flex;
+  flex-direction: row;
+}
+
+.msgAvatar {
+  vertical-align: middle;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.msgTitle {
+  color: #b07e18;
+  padding-right: 10px;
+}
+
+.msgText {
+  padding-top: 3px;
+}

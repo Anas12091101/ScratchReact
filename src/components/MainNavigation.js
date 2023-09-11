@@ -27,6 +27,17 @@ function MainNavigation() {
               Login/Register
             </NavLink>
           </li>
+
+          <li>
+            <NavLink
+              to="/chat"
+              className={({ isActive }) =>
+                isActive ? classes.active : undefined
+              }
+            >
+              Chat
+            </NavLink>
+          </li>
         </ul>
       </nav>
     </header>

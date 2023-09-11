@@ -29,6 +29,10 @@ axiosInstance.interceptors.response.use(
     if (error.response.data?.password) {
       error.response.data?.password.map((err) => toast.error(err));
     }
+    //
+    if (error.response.data?.message.email) {
+      error.response.data?.message.email.map((err) => toast.error(err));
+    }
     // Backend API error handling
     else {
       toast.error(
@@ -41,7 +45,8 @@ axiosInstance.interceptors.response.use(
     }
     if (error.response.status === 401) {
       localStorage.clear();
-      return redirect("/auth?mode=login");
+      let path = window.location.pathname;
+      return redirect("/auth?mode=login?next=" + path.slice(1));
     }
     return Promise.reject(error);
   }

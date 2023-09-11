@@ -12,6 +12,8 @@ import { action as resetAction } from "./pages/Reset";
 import { action as LogoutAction } from "./pages/Logout";
 import { tokenLoader } from "./utils/auth";
 import { homeLoader } from "./pages/Home";
+import Chat, { ChatLoader } from "./pages/Chat";
+import ChatRoom, { ChatRoomLoader } from "./pages/ChatRoom";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -37,6 +39,21 @@ const router = createBrowserRouter([
       {
         path: "logout",
         action: LogoutAction,
+      },
+      {
+        path: "chat",
+        children: [
+          {
+            index: true,
+            element: <Chat />,
+            loader: ChatLoader,
+          },
+          {
+            path: ":roomName",
+            element: <ChatRoom />,
+            loader: ChatRoomLoader,
+          },
+        ],
       },
     ],
   },

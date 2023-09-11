@@ -11,6 +11,7 @@ function AuthForm() {
   // eslint-disable-next-line
   const [searchParams, setSearchParams] = useSearchParams();
   const isLogin = searchParams.get("mode") === "login";
+  const next = searchParams.get("next") ? "/" + searchParams.get("next") : "/";
   const [otp, setOtp] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
@@ -35,16 +36,18 @@ function AuthForm() {
             let jwt_token = data.token.access;
             setJWTToken(jwt_token);
             toast.success("Successfully Logged In");
-            return navigate("/");
+            return navigate(next);
           }
         } else {
-          let otpUrl = "otp/create_otp/";
-          try {
-            await axiosInstance.post(otpUrl, body);
-            toast.success("Successfully Registered User");
-            setSubmitting(false);
-            return navigate("/auth?mode=login");
-          } catch (error) {}
+          if (!data["message"]["email"]) {
+            let otpUrl = "otp/create_otp/";
+            try {
+              await axiosInstance.post(otpUrl, body);
+              toast.success("Successfully Registered User");
+              setSubmitting(false);
+              return navigate("/auth?mode=login");
+            } catch (error) {}
+          }
         }
       } catch (error) {}
 
@@ -57,7 +60,7 @@ function AuthForm() {
         let jwt_token = data.token.access;
         setJWTToken(jwt_token);
         toast.success("Successfully Logged In");
-        return navigate("/");
+        return navigate(next);
       } catch (error) {}
     }
   }

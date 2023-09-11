@@ -16,7 +16,7 @@ function HomePage() {
       <h2>Email: {email}</h2>
       <img
         className="avatar"
-        src={process.env.REACT_APP_BACKEND_URL + avatar}
+        src={process.env.REACT_APP_BACKEND_URL.slice(0, -1) + avatar}
         alt="Profile pic"
       ></img>
 
