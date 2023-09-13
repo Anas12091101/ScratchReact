@@ -1,0 +1,113 @@
+.msgChat {
+  display: block;
+  border: 2px solid #0c9b30;
+  padding: 20px;
+  margin: 30px;
+}
+
+.msgAction {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.msgInput {
+  width: 90%;
+  height: 3rem;
+  font-size: 95%;
+  padding: 4px;
+}
+
+.msgs {
+  height: 30rem;
+  /* overflow: scroll; */
+  overflow-y: auto;
+}
+
+.btn {
+  width: 9%;
+  min-width: 60px;
+}
+
+.msg {
+  display: block;
+  /* flex-direction: row; */
+}
+
+.msgAvatar {
+  vertical-align: middle;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.msgTitle {
+  color: #f8bd47;
+  padding-bottom: 0;
+  margin-bottom: 5px;
+}
+
+.msgHeader {
+  display: flex;
+  align-items: center;
+}
+
+.msgText {
+  margin-top: 0px;
+  padding-top: 0px;
+}
+
+.fileNameBox {
+  display: flex;
+  border: 1px solid rgb(104, 99, 99);
+  justify-content: space-between;
+  padding: 0px 25px;
+  margin-bottom: 6px;
+  max-height: 30px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.closeBtn {
+  background-color: #902424;
+  border-radius: 35%;
+  border: none;
+  font-size: small;
+}
+
+.media {
+  max-width: 42rem;
+  max-height: 33rem;
+  margin-left: 64px;
+}
+.image:hover {
+  cursor: zoom-in;
+}
+.zoomImg {
+  cursor: zoom-out;
+  width: 63rem;
+  height: 37rem;
+}
+
+.pdfBtn {
+  background-color: #902424;
+  margin-left: 64px;
+  padding: 20px;
+  border-radius: 10%;
+  border: none;
+}
+
+.pdfBtn:hover {
+  cursor: pointer;
+}
+
+.fileBtn {
+  background-color: rgb(154, 145, 145);
+  margin-left: 64px;
+  padding: 20px;
+  border-radius: 10%;
+  border: none;
+}
