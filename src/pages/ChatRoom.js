@@ -21,10 +21,31 @@ function ChatRoom() {
     }
   }, [lastMessage, setMessages]);
 
-  function onSendHandler(msg) {
-    msg = { type: "chat.message", message: msg, profile: profile };
+  async function onSendHandler(files, msg) {
+    let file_types = files.map((file) => file.type);
 
-    sendMessage(JSON.stringify(msg));
+    if (files.length > 0) {
+      try {
+        let { data } = await axiosInstance.post(
+          "chat/upload_file",
+          { files: files, types: file_types },
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        data.ids.map((id) => {
+          let filemsg = { type: "chat.file", message: id, profile: profile };
+          sendMessage(JSON.stringify(filemsg));
+        });
+      } catch {}
+    }
+    if (msg) {
+      msg = { type: "text", message: msg, profile: profile };
+
+      sendMessage(JSON.stringify(msg));
+    }
   }
 
   return <ChatBox messages={messages} onSendHandler={onSendHandler}></ChatBox>;
@@ -45,6 +66,7 @@ export async function ChatRoomLoader({ params }) {
     return redirect("/chat");
   }
   let { data: prevMessages } = response;
+  if (!prevMessages) return redirect("/auth?mode=login&next=chat");
   prevMessages = prevMessages["messages"];
 
   let { data } = await axiosInstance.get("profile/get_all_profile");

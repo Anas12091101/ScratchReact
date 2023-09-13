@@ -30,8 +30,11 @@ axiosInstance.interceptors.response.use(
       error.response.data?.password.map((err) => toast.error(err));
     }
     //
-    if (error.response.data?.message.email) {
-      error.response.data?.message.email.map((err) => toast.error(err));
+    if (error.response.data?.message?.email) {
+      error.response.data?.message?.email.map((err) => toast.error(err));
+    }
+    if (typeof error.response.data?.message === "object") {
+      error.response.data?.message.map((err) => toast.error(err));
     }
     // Backend API error handling
     else {
